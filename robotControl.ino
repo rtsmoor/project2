@@ -33,9 +33,6 @@ String modus = "Manually controlled";
 #define ultrasoonSensorRechtsTrig 35
 #define ultrasoonSensorRechtsEcho 34
 
-#define ultrasoonSensorBovenTrig 18
-#define ultrasoonSensorOnderEcho 19
-
 #define infraroodSensorLinks 25
 #define infraroodSensorRechts 32
 
@@ -49,10 +46,19 @@ int counter = 0;
 String detectie = "NO";
 String obstacle = "NO";
 
+
+  // afgrond detectie
+  const int trigPinA = 19;
+  const int echoPinA = 18;
+
+
 void setup() {
   //
   Serial.begin(115200);
-
+// afgrond detectie
+  pinMode(trigPinA, OUTPUT);
+  pinMode(echoPinA, INPUT);
+  
   // Initialize the output variables as outputs
   pinMode(motorLinksVooruit, OUTPUT);
   pinMode(motorRechtsVooruit, OUTPUT);
@@ -63,9 +69,6 @@ void setup() {
   pinMode(ultrasoonSensorRechtsTrig, OUTPUT);
   pinMode(ultrasoonSensorLinksEcho, INPUT);
   pinMode(ultrasoonSensorRechtsEcho, INPUT);
-
-  pinMode(ultrasoonSensorBovenTrig, OUTPUT);
-  pinMode(ultrasoonSensorOnderEcho, INPUT);
 
   pinMode(infraroodSensorLinks, INPUT_PULLUP);
   pinMode(infraroodSensorRechts, INPUT);
@@ -98,7 +101,7 @@ void loop() {
   int waardeInfraroodSensorLinks = 1- digitalRead(infraroodSensorLinks);
 
   static unsigned long startTime = millis();
-
+//---------------------------------- nieuwe code hier---------------------------- (voeg afgrondDetectie ergens hierin toe)
   if (modus == "Automatic-driving") {
     Serial.println("Automatic-driving");
 
@@ -133,7 +136,7 @@ void loop() {
           }
     */
   }
-
+// -----------------------------nieuwe code tot hier----------------------
   WiFiClient client = server.available();   // Listen for incoming clients
 
   if (client) {                             // If a new client connects,
@@ -373,4 +376,40 @@ void loop() {
     Serial.println("Client disconnected.");
     Serial.println("");
   }
+}
+
+int afgrondDetectie() {
+  long duration;
+  int distance;
+
+  // Clears the trigPin
+  digitalWrite(trigPinA, LOW);
+  delayMicroseconds(2);
+
+  // Sets the trigPin on HIGH state for 10 micro seconds
+
+  digitalWrite(trigPinA, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPinA, LOW);
+
+  // Reads the echoPin, returns the sound wave travel time in microseconds
+  duration = pulseIn(echoPinA, HIGH);
+
+  // Calculating the distance
+  distance = duration * 0.034 / 2;
+
+  if (distance > 30) {
+    distance = 30;
+  }
+  // Prints the distance on the Serial Monitor
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
+  if (distance > 5) {
+    return 1;
+  }
+  if (distance <= 5) {
+    return 0;
+  }
+
 }
