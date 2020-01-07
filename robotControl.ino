@@ -1,7 +1,6 @@
 // Load Wi-Fi library
 #include <WiFi.h>
 
-
 //Networkdata
 const char* ssid     = "Tesla IoT";
 const char* password = "fsL6HgjN";
