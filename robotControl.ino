@@ -35,7 +35,7 @@ String modus = "Automatic-driving";
 #define infraroodSensorLinks 5
 #define infraroodSensorRechts 21
 
-#define reedSensor 21
+#define reedSensor 15
 
 float tijd;               // variable in decimalen
 float afstand;            // variable in decimalen
@@ -46,18 +46,18 @@ String detectie = "NO";
 String obstacle = "NO";
 
 
-  // afgrond detectie
-  const int trigPinA = 19;
-  const int echoPinA = 18;
+// afgrond detectie
+const int trigPinA = 19;
+const int echoPinA = 18;
 
 
 void setup() {
   //
   Serial.begin(115200);
-// afgrond detectie
+  // afgrond detectie
   pinMode(trigPinA, OUTPUT);
   pinMode(echoPinA, INPUT);
-  
+
   // Initialize the output variables as outputs
   pinMode(motorLinksVooruit, OUTPUT);
   pinMode(motorRechtsVooruit, OUTPUT);
@@ -97,31 +97,31 @@ void setup() {
 }
 
 void loop() {
-  int waardeInfraroodSensorLinks = 1- digitalRead(infraroodSensorLinks);
+  int waardeInfraroodSensorLinks = 1 - digitalRead(infraroodSensorLinks);
 
   static unsigned long startTime = millis();
-//---------------------------------- nieuwe code hier----------------------------
+  //---------------------------------- nieuwe code hier----------------------------
   //Serial.println(WiFi.localIP());
   if (modus == "Automatic-driving") {
     Serial.println("Automatic-driving");
 
     bool afgrond = afgrondDetectie();
-    if(afgrond == true){
+    if (afgrond == true) {
       //robotStop();
       //robotReverse();
       //robotLeft or robotRight
       //robotForward
-      }
-     
+    }
 
-    
+
+
     if (reedSensor == HIGH) {
       counter++;
       detectie = "YES";
     }
     if (reedSensor == LOW) {
       detectie = "NO";
-    }    
+    }
 
     if (millis () - startTime > 500) {
       startTime = millis();
@@ -146,7 +146,7 @@ void loop() {
           }
     */
   }
-// -----------------------------nieuwe code tot hier----------------------
+  // -----------------------------nieuwe code tot hier----------------------
   WiFiClient client = server.available();   // Listen for incoming clients
 
   if (client) {                             // If a new client connects,
@@ -422,4 +422,34 @@ bool afgrondDetectie() {
     return false;
   }
 
+}
+
+void robotForward() {
+  robotStop();
+  digitalWrite(motorLinksVooruit, HIGH);
+  digitalWrite(motorRechtsVooruit, HIGH);
+}
+
+void robotLeft() {
+  digitalWrite(motorLinksVooruit, LOW);
+  digitalWrite(motorRechtsVooruit, HIGH);
+}
+
+void robotRight() {
+  digitalWrite(motorLinksVooruit, HIGH);
+  digitalWrite(motorRechtsVooruit, LOW);
+}
+
+void robotReverse() {
+  robotStop();
+  digitalWrite(motorLinksAchteruit, HIGH);
+  digitalWrite(motorRechtsAchteruit, HIGH);
+}
+
+void robotStop() {
+  digitalWrite(motorLinksAchteruit, LOW);
+  digitalWrite(motorRechtsAchteruit, LOW);
+  digitalWrite(motorLinksVooruit, LOW);
+  digitalWrite(motorRechtsVooruit, LOW);
+  
 }
