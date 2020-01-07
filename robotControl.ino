@@ -21,6 +21,7 @@ String outputRightState = "off";
 // modus = Automatic-driving/Manually controlled
 String modus = "Automatic-driving";
 
+
 //Motors and sensors pins
 #define motorLinksVooruit 27
 #define motorRechtsVooruit 26
@@ -49,6 +50,8 @@ String obstacle = "NO";
 // afgrond detectie
 const int trigPinA = 19;
 const int echoPinA = 18;
+
+bool afgrondBuffer = false;
 
 
 void setup() {
@@ -94,24 +97,55 @@ void setup() {
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
   server.begin();
+
+  robotForward();
+ 
 }
 
 void loop() {
   int waardeInfraroodSensorLinks = 1 - digitalRead(infraroodSensorLinks);
-
+  
   static unsigned long startTime = millis();
+  static unsigned long startTime2 = millis();
+  static unsigned long startTime3 = millis();
+ 
   //---------------------------------- nieuwe code hier----------------------------
   //Serial.println(WiFi.localIP());
   if (modus == "Automatic-driving") {
     Serial.println("Automatic-driving");
-
     bool afgrond = afgrondDetectie();
+if(afgrond == false && afgrondBuffer == false){
+  if (millis () - startTime3 > 2000) {
+    
+      startTime3 = millis();
+  robotForward();
+  }
+  }
+    
     if (afgrond == true) {
-      //robotStop();
-      //robotReverse();
-      //robotLeft or robotRight
+     
+      robotReverse();
+     
+      
+        afgrondBuffer = true;
+      }
+      
+          
+        
+      if(afgrondBuffer == true && afgrond == false){
+        robotReverse();
+        
+        
+        robotStop();
+        robotLeft();
+        if (millis () - startTime2 > 300) {
+      startTime2 = millis();
+        afgrondBuffer = false;
+        }
+        }
+
       //robotForward
-    }
+    
 
 
 
@@ -433,6 +467,7 @@ void robotForward() {
 void robotLeft() {
   digitalWrite(motorLinksVooruit, LOW);
   digitalWrite(motorRechtsVooruit, HIGH);
+  
 }
 
 void robotRight() {
@@ -444,6 +479,7 @@ void robotReverse() {
   robotStop();
   digitalWrite(motorLinksAchteruit, HIGH);
   digitalWrite(motorRechtsAchteruit, HIGH);
+  return;
 }
 
 void robotStop() {
@@ -451,5 +487,6 @@ void robotStop() {
   digitalWrite(motorRechtsAchteruit, LOW);
   digitalWrite(motorLinksVooruit, LOW);
   digitalWrite(motorRechtsVooruit, LOW);
-  
+  return;
+
 }
