@@ -33,10 +33,10 @@ String modus = "Automatic-driving";
 #define ultrasoonSensorRechtsTrig 35
 #define ultrasoonSensorRechtsEcho 34
 
-#define infraroodSensorLinks 25
-#define infraroodSensorRechts 32
+#define infraroodSensorLinks 5
+#define infraroodSensorRechts 21
 
-#define reedSensor 21
+#define reedSensor 15
 
 float tijd;               // variable in decimalen
 float afstand;            // variable in decimalen
