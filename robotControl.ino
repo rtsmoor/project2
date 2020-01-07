@@ -23,18 +23,18 @@ String outputRightState = "off";
 String modus = "Automatic-driving";
 
 //Motors and sensors pins
-#define motorLinksVooruit 14
-#define motorRechtsVooruit 27
-#define motorLinksAchteruit 26
+#define motorLinksVooruit 27
+#define motorRechtsVooruit 26
+#define motorLinksAchteruit 14
 #define motorRechtsAchteruit 25
 
-#define ultrasoonSensorLinksTrig 13
-#define ultrasoonSensorLinksEcho 12
-#define ultrasoonSensorRechtsTrig 35
+#define ultrasoonSensorLinksTrig 35
+#define ultrasoonSensorLinksEcho 34
+#define ultrasoonSensorRechtsTrig 33
 #define ultrasoonSensorRechtsEcho 34
 
-#define infraroodSensorLinks 25
-#define infraroodSensorRechts 32
+#define infraroodSensorLinks 5
+#define infraroodSensorRechts 21
 
 #define reedSensor 21
 
