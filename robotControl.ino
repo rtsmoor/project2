@@ -20,7 +20,7 @@ String outputRightState = "off";
 
 //Variable of the state of the robot: Automatic-driving or manually controlled
 // modus = Automatic-driving/Manually controlled
-String modus = "Manually controlled";
+String modus = "Automatic-driving";
 
 //Motors and sensors pins
 #define motorLinksVooruit 14
@@ -101,10 +101,21 @@ void loop() {
   int waardeInfraroodSensorLinks = 1- digitalRead(infraroodSensorLinks);
 
   static unsigned long startTime = millis();
-//---------------------------------- nieuwe code hier---------------------------- (voeg afgrondDetectie ergens hierin toe)
+//---------------------------------- nieuwe code hier----------------------------
+  //Serial.println(WiFi.localIP());
   if (modus == "Automatic-driving") {
     Serial.println("Automatic-driving");
 
+    bool afgrond = afgrondDetectie();
+    if(afgrond == true){
+      //robotStop();
+      //robotReverse();
+      //robotLeft or robotRight
+      //robotForward
+      }
+     
+
+    
     if (reedSensor == HIGH) {
       counter++;
       detectie = "YES";
@@ -378,9 +389,9 @@ void loop() {
   }
 }
 
-int afgrondDetectie() {
+bool afgrondDetectie() {
   long duration;
-  int distance;
+  int distanceToGround;
 
   // Clears the trigPin
   digitalWrite(trigPinA, LOW);
@@ -396,20 +407,20 @@ int afgrondDetectie() {
   duration = pulseIn(echoPinA, HIGH);
 
   // Calculating the distance
-  distance = duration * 0.034 / 2;
+  distanceToGround = ((duration * 0.034) / 2) - 8;
 
-  if (distance > 30) {
-    distance = 30;
+  if (distanceToGround > 30) {
+    distanceToGround = 30;
   }
   // Prints the distance on the Serial Monitor
   Serial.print("Distance: ");
-  Serial.print(distance);
+  Serial.print(distanceToGround);
   Serial.println(" cm");
-  if (distance > 5) {
-    return 1;
+  if (distanceToGround > 5) {
+    return true;
   }
-  if (distance <= 5) {
-    return 0;
+  if (distanceToGround <= 5) {
+    return false;
   }
 
 }
