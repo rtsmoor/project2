@@ -51,6 +51,7 @@ String obstacle = "NO";
 const int trigPinA = 19;
 const int echoPinA = 18;
 
+bool afgrond = false;
 bool afgrondBuffer = false;
 
 
@@ -112,41 +113,9 @@ void loop() {
   //---------------------------------- nieuwe code hier----------------------------
   //Serial.println(WiFi.localIP());
   if (modus == "Automatic-driving") {
+    
     Serial.println("Automatic-driving");
-    bool afgrond = afgrondDetectie();
-    if (afgrond == false && afgrondBuffer == false) {
-      if (millis () - startTime3 > 2000) {
-
-        startTime3 = millis();
-        robotForward();
-      }
-    }
-
-    if (afgrond == true) {
-
-      robotReverse();
-
-
-      afgrondBuffer = true;
-    }
-
-
-
-    if (afgrondBuffer == true && afgrond == false) {
-      robotReverse();
-
-
-      robotStop();
-      robotLeft();
-      if (millis () - startTime2 > 300) {
-        startTime2 = millis();
-        afgrondBuffer = false;
-      }
-    }
-
-    //robotForward
-
-
+    afgrondDetectie();  
 
 
     if (reedSensor == HIGH) {
@@ -214,6 +183,7 @@ void loop() {
             if (header.indexOf("GET /condition/off") >= 0) {
               Serial.println("Manually controlled");
               modus = "Manually controlled";
+              robotStop();
               Serial.println("Manually controlled");
             }
 
@@ -292,10 +262,10 @@ void loop() {
                 if (header.indexOf("GET /rechts/on") >= 0) {
                   Serial.println("Rechts stop");
                   outputRightState = "on";
-                  digitalWrite(motorLinksAchteruit, HIGH);
-                  digitalWrite(motorRechtsVooruit, HIGH);
-                  digitalWrite(motorLinksVooruit, LOW);
-                  digitalWrite(motorRechtsAchteruit, LOW);
+                  digitalWrite(motorLinksAchteruit, LOW);
+                  digitalWrite(motorRechtsVooruit, LOW);
+                  digitalWrite(motorLinksVooruit, HIGH);
+                  digitalWrite(motorRechtsAchteruit, HIGH);
                 }
               }
               if (outputRightState == "on") {
@@ -439,7 +409,9 @@ void loop() {
   }
 }
 
-bool afgrondDetectie() {
+void afgrondDetectie() {
+  static unsigned long startTime3 = millis();
+  static unsigned long startTime2 = millis();
   long duration;
   int distanceToGround;
 
@@ -467,11 +439,37 @@ bool afgrondDetectie() {
   Serial.print(distanceToGround);
   Serial.println(" cm");
   if (distanceToGround > 5) {
-    return true;
+    afgrond = true;
   }
   if (distanceToGround <= 5) {
-    return false;
+    afgrond = false;
   }
+    
+    if (afgrond == false && afgrondBuffer == false) {
+      if (millis () - startTime3 > 2000) {
+
+        startTime3 = millis();
+        robotForward();
+      }
+    }
+
+    if (afgrond == true) {
+
+      robotReverse();
+      afgrondBuffer = true;
+    }
+
+      if(afgrondBuffer == true && afgrond == false){
+        robotReverse();
+        
+        
+        robotStop();
+        robotLeft();
+        if (millis () - startTime2 > 300) {
+      startTime2 = millis();
+        afgrondBuffer = false;
+        }
+        }
 
 }
 
@@ -496,7 +494,6 @@ void robotReverse() {
   robotStop();
   digitalWrite(motorLinksAchteruit, HIGH);
   digitalWrite(motorRechtsAchteruit, HIGH);
-  return;
 }
 
 void robotStop() {
@@ -504,6 +501,4 @@ void robotStop() {
   digitalWrite(motorRechtsAchteruit, LOW);
   digitalWrite(motorLinksVooruit, LOW);
   digitalWrite(motorRechtsVooruit, LOW);
-  return;
-
 }
