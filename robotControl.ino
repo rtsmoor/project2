@@ -99,53 +99,53 @@ void setup() {
   server.begin();
 
   robotForward();
- 
+
 }
 
 void loop() {
   int waardeInfraroodSensorLinks = 1 - digitalRead(infraroodSensorLinks);
-  
+
   static unsigned long startTime = millis();
   static unsigned long startTime2 = millis();
   static unsigned long startTime3 = millis();
- 
+
   //---------------------------------- nieuwe code hier----------------------------
   //Serial.println(WiFi.localIP());
   if (modus == "Automatic-driving") {
     Serial.println("Automatic-driving");
     bool afgrond = afgrondDetectie();
-if(afgrond == false && afgrondBuffer == false){
-  if (millis () - startTime3 > 2000) {
-    
-      startTime3 = millis();
-  robotForward();
-  }
-  }
-    
-    if (afgrond == true) {
-     
-      robotReverse();
-     
-      
-        afgrondBuffer = true;
-      }
-      
-          
-        
-      if(afgrondBuffer == true && afgrond == false){
-        robotReverse();
-        
-        
-        robotStop();
-        robotLeft();
-        if (millis () - startTime2 > 300) {
-      startTime2 = millis();
-        afgrondBuffer = false;
-        }
-        }
+    if (afgrond == false && afgrondBuffer == false) {
+      if (millis () - startTime3 > 2000) {
 
-      //robotForward
-    
+        startTime3 = millis();
+        robotForward();
+      }
+    }
+
+    if (afgrond == true) {
+
+      robotReverse();
+
+
+      afgrondBuffer = true;
+    }
+
+
+
+    if (afgrondBuffer == true && afgrond == false) {
+      robotReverse();
+
+
+      robotStop();
+      robotLeft();
+      if (millis () - startTime2 > 300) {
+        startTime2 = millis();
+        afgrondBuffer = false;
+      }
+    }
+
+    //robotForward
+
 
 
 
@@ -225,16 +225,20 @@ if(afgrond == false && afgrondBuffer == false){
                 if (header.indexOf("GET /vooruit/on") >= 0) {
                   Serial.println("Vooruit start");
                   outputForwardState = "on";
-                  digitalWrite(motorLinksVooruit, HIGH);
+                  digitalWrite(motorLinksAchteruit, LOW);
                   digitalWrite(motorRechtsVooruit, HIGH);
+                  digitalWrite(motorLinksVooruit, HIGH);
+                  digitalWrite(motorRechtsAchteruit, LOW);
                 }
               }
               if (outputForwardState == "on") {
                 if (header.indexOf("GET /vooruit/off") >= 0) {
                   Serial.println("Vooruit stop");
                   outputForwardState = "off";
-                  digitalWrite(motorLinksVooruit, LOW);
+                  digitalWrite(motorLinksAchteruit, LOW);
                   digitalWrite(motorRechtsVooruit, LOW);
+                  digitalWrite(motorLinksVooruit, LOW);
+                  digitalWrite(motorRechtsAchteruit, LOW);
                 }
               }
 
@@ -244,6 +248,8 @@ if(afgrond == false && afgrondBuffer == false){
                   Serial.println("Achteruit start");
                   outputBackwardState = "on";
                   digitalWrite(motorLinksAchteruit, HIGH);
+                  digitalWrite(motorRechtsVooruit, LOW);
+                  digitalWrite(motorLinksVooruit, LOW);
                   digitalWrite(motorRechtsAchteruit, HIGH);
                 }
               }
@@ -252,6 +258,8 @@ if(afgrond == false && afgrondBuffer == false){
                   Serial.println("Achteruit stop");
                   outputBackwardState = "off";
                   digitalWrite(motorLinksAchteruit, LOW);
+                  digitalWrite(motorRechtsVooruit, LOW);
+                  digitalWrite(motorLinksVooruit, LOW);
                   digitalWrite(motorRechtsAchteruit, LOW);
                 }
               }
@@ -263,6 +271,9 @@ if(afgrond == false && afgrondBuffer == false){
                   outputLeftState = "on";
                   digitalWrite(motorLinksAchteruit, HIGH);
                   digitalWrite(motorRechtsVooruit, HIGH);
+                  digitalWrite(motorLinksVooruit, LOW);
+                  digitalWrite(motorRechtsAchteruit, LOW);
+
                 }
               }
               if (outputLeftState == "on") {
@@ -271,6 +282,8 @@ if(afgrond == false && afgrondBuffer == false){
                   outputLeftState = "off";
                   digitalWrite(motorLinksAchteruit, LOW);
                   digitalWrite(motorRechtsVooruit, LOW);
+                  digitalWrite(motorLinksVooruit, LOW);
+                  digitalWrite(motorRechtsAchteruit, LOW);
                 }
               }
 
@@ -279,14 +292,18 @@ if(afgrond == false && afgrondBuffer == false){
                 if (header.indexOf("GET /rechts/on") >= 0) {
                   Serial.println("Rechts stop");
                   outputRightState = "on";
-                  digitalWrite(motorLinksVooruit, HIGH);
-                  digitalWrite(motorRechtsAchteruit, HIGH);
+                  digitalWrite(motorLinksAchteruit, HIGH);
+                  digitalWrite(motorRechtsVooruit, HIGH);
+                  digitalWrite(motorLinksVooruit, LOW);
+                  digitalWrite(motorRechtsAchteruit, LOW);
                 }
               }
               if (outputRightState == "on") {
                 if (header.indexOf("GET /rechts/off") >= 0) {
                   Serial.println("Rechts start");
                   outputRightState = "off";
+                  digitalWrite(motorLinksAchteruit, LOW);
+                  digitalWrite(motorRechtsVooruit, LOW);
                   digitalWrite(motorLinksVooruit, LOW);
                   digitalWrite(motorRechtsAchteruit, LOW);
                 }
@@ -467,7 +484,7 @@ void robotForward() {
 void robotLeft() {
   digitalWrite(motorLinksVooruit, LOW);
   digitalWrite(motorRechtsVooruit, HIGH);
-  
+
 }
 
 void robotRight() {
