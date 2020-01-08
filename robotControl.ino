@@ -467,12 +467,15 @@ void robotForward() {
 void robotLeft() {
   digitalWrite(motorLinksVooruit, LOW);
   digitalWrite(motorRechtsVooruit, HIGH);
-  
+  digitalWrite(motorRechtsAchteruit, LOW);
+  digitalWrite(motorLinksAchteruit, HIGH);
 }
 
 void robotRight() {
   digitalWrite(motorLinksVooruit, HIGH);
   digitalWrite(motorRechtsVooruit, LOW);
+  digitalWrite(motorRechtsAchteruit, HIGH);
+  digitalWrite(motorLinksAchteruit, LOW);
 }
 
 void robotReverse() {
