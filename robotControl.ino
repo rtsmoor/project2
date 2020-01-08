@@ -171,7 +171,7 @@ void loop() {
             client.println("Connection: close");
             client.println();
 
-
+            
             //----------------------------------//Methods to get the data from the webserver //----------------------------------//
 
             //Header to select the modus
@@ -179,6 +179,7 @@ void loop() {
               Serial.println("Automatic-driving");
               modus = "Automatic-driving";
               Serial.println("Automatic-driving");
+              break;
             }
             if (header.indexOf("GET /condition/off") >= 0) {
               Serial.println("Manually controlled");
