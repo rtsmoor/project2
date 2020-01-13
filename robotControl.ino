@@ -21,6 +21,7 @@ String outputRightState = "off";
 // modus = Automatic-driving/Manually controlled
 String modus = "Automatic-driving";
 
+
 //Motors and sensors pins
 #define motorLinksVooruit 27
 #define motorRechtsVooruit 26
@@ -49,6 +50,9 @@ String obstacle = "NO";
 // afgrond detectie
 const int trigPinA = 19;
 const int echoPinA = 18;
+
+bool afgrond = false;
+bool afgrondBuffer = false;
 
 
 void setup() {
@@ -94,25 +98,25 @@ void setup() {
   Serial.println("IP address: ");
   Serial.println(WiFi.localIP());
   server.begin();
+
+  robotForward();
+
 }
 
 void loop() {
   int waardeInfraroodSensorLinks = 1 - digitalRead(infraroodSensorLinks);
 
   static unsigned long startTime = millis();
+  static unsigned long startTime2 = millis();
+  static unsigned long startTime3 = millis();
+
   //---------------------------------- nieuwe code hier----------------------------
   //Serial.println(WiFi.localIP());
   if (modus == "Automatic-driving") {
-    Serial.println("Automatic-driving");
-
-    bool afgrond = afgrondDetectie();
-    if (afgrond == true) {
-      //robotStop();
-      //robotReverse();
-      //robotLeft or robotRight
-      //robotForward
-    }
-
+    
+    //Serial.println("Automatic-driving");
+    lijnDetectie();
+    afgrondDetectie();  
 
 
     if (reedSensor == HIGH) {
@@ -125,7 +129,7 @@ void loop() {
 
     if (millis () - startTime > 500) {
       startTime = millis();
-      Serial.println(waardeInfraroodSensorLinks);
+      //Serial.println(waardeInfraroodSensorLinks);
     }
     /*
           digitalWrite(trigPin, LOW);     // Zeker weten dan de trigPin geen signaal uitzend
@@ -150,12 +154,12 @@ void loop() {
   WiFiClient client = server.available();   // Listen for incoming clients
 
   if (client) {                             // If a new client connects,
-    Serial.println("New Client.");          // print a message out in the serial port
+    //Serial.println("New Client.");          // print a message out in the serial port
     String currentLine = "";                // make a String to hold incoming data from the client
     while (client.connected()) {            // loop while the client's connected
       if (client.available()) {             // if there's bytes to read from the client,
         char c = client.read();             // read a byte, then
-        Serial.write(c);                    // print it out the serial monitor
+        //Serial.write(c);                    // print it out the serial monitor
         header += c;
         if (c == '\n') {                    // if the byte is a newline character
           // if the current line is blank, you got two newline characters in a row.
@@ -168,19 +172,21 @@ void loop() {
             client.println("Connection: close");
             client.println();
 
-
+            
             //----------------------------------//Methods to get the data from the webserver //----------------------------------//
 
             //Header to select the modus
             if (header.indexOf("GET /condition/on") >= 0) {
-              Serial.println("Automatic-driving");
+              //Serial.println("Automatic-driving");
               modus = "Automatic-driving";
-              Serial.println("Automatic-driving");
+              //Serial.println("Automatic-driving");
+              break;
             }
             if (header.indexOf("GET /condition/off") >= 0) {
-              Serial.println("Manually controlled");
+              //Serial.println("Manually controlled");
               modus = "Manually controlled";
-              Serial.println("Manually controlled");
+              robotStop();
+              //Serial.println("Manually controlled");
             }
 
             if (modus == "Manually controlled") {
@@ -189,35 +195,43 @@ void loop() {
               //Header to drive the car forward
               if (outputForwardState == "off") {
                 if (header.indexOf("GET /vooruit/on") >= 0) {
-                  Serial.println("Vooruit start");
+                  //Serial.println("Vooruit start");
                   outputForwardState = "on";
-                  digitalWrite(motorLinksVooruit, HIGH);
+                  digitalWrite(motorLinksAchteruit, LOW);
                   digitalWrite(motorRechtsVooruit, HIGH);
+                  digitalWrite(motorLinksVooruit, HIGH);
+                  digitalWrite(motorRechtsAchteruit, LOW);
                 }
               }
               if (outputForwardState == "on") {
                 if (header.indexOf("GET /vooruit/off") >= 0) {
                   Serial.println("Vooruit stop");
                   outputForwardState = "off";
-                  digitalWrite(motorLinksVooruit, LOW);
+                  digitalWrite(motorLinksAchteruit, LOW);
                   digitalWrite(motorRechtsVooruit, LOW);
+                  digitalWrite(motorLinksVooruit, LOW);
+                  digitalWrite(motorRechtsAchteruit, LOW);
                 }
               }
 
               //Header to drive the car backward
               if (outputBackwardState == "off") {
                 if (header.indexOf("GET /achteruit/on") >= 0)  {
-                  Serial.println("Achteruit start");
+                  //Serial.println("Achteruit start");
                   outputBackwardState = "on";
                   digitalWrite(motorLinksAchteruit, HIGH);
+                  digitalWrite(motorRechtsVooruit, LOW);
+                  digitalWrite(motorLinksVooruit, LOW);
                   digitalWrite(motorRechtsAchteruit, HIGH);
                 }
               }
               if (outputBackwardState == "on" ) {
                 if (header.indexOf("GET /achteruit/off") >= 0) {
-                  Serial.println("Achteruit stop");
+                  //Serial.println("Achteruit stop");
                   outputBackwardState = "off";
                   digitalWrite(motorLinksAchteruit, LOW);
+                  digitalWrite(motorRechtsVooruit, LOW);
+                  digitalWrite(motorLinksVooruit, LOW);
                   digitalWrite(motorRechtsAchteruit, LOW);
                 }
               }
@@ -225,34 +239,43 @@ void loop() {
               //Header to drive the car to the left
               if (outputLeftState == "off") {
                 if (header.indexOf("GET /links/on") >= 0) {
-                  Serial.println("Links start");
+                  //Serial.println("Links start");
                   outputLeftState = "on";
                   digitalWrite(motorLinksAchteruit, HIGH);
                   digitalWrite(motorRechtsVooruit, HIGH);
+                  digitalWrite(motorLinksVooruit, LOW);
+                  digitalWrite(motorRechtsAchteruit, LOW);
+
                 }
               }
               if (outputLeftState == "on") {
                 if (header.indexOf("GET /links/off") >= 0) {
-                  Serial.println("Links stop");
+                  //Serial.println("Links stop");
                   outputLeftState = "off";
                   digitalWrite(motorLinksAchteruit, LOW);
                   digitalWrite(motorRechtsVooruit, LOW);
+                  digitalWrite(motorLinksVooruit, LOW);
+                  digitalWrite(motorRechtsAchteruit, LOW);
                 }
               }
 
               //Header to drive the car to the right
               if (outputRightState == "off") {
                 if (header.indexOf("GET /rechts/on") >= 0) {
-                  Serial.println("Rechts stop");
+                  //Serial.println("Rechts stop");
                   outputRightState = "on";
+                  digitalWrite(motorLinksAchteruit, LOW);
+                  digitalWrite(motorRechtsVooruit, LOW);
                   digitalWrite(motorLinksVooruit, HIGH);
                   digitalWrite(motorRechtsAchteruit, HIGH);
                 }
               }
               if (outputRightState == "on") {
                 if (header.indexOf("GET /rechts/off") >= 0) {
-                  Serial.println("Rechts start");
+                  //Serial.println("Rechts start");
                   outputRightState = "off";
+                  digitalWrite(motorLinksAchteruit, LOW);
+                  digitalWrite(motorRechtsVooruit, LOW);
                   digitalWrite(motorLinksVooruit, LOW);
                   digitalWrite(motorRechtsAchteruit, LOW);
                 }
@@ -383,12 +406,27 @@ void loop() {
     header = "";
     //Close the connection
     client.stop();
-    Serial.println("Client disconnected.");
-    Serial.println("");
+    //Serial.println("Client disconnected.");
+    //Serial.println("");
   }
 }
 
-bool afgrondDetectie() {
+void lijnDetectie(){
+      Serial.println(digitalRead(infraroodSensorLinks));
+      Serial.println(digitalRead(infraroodSensorRechts));
+
+  if (digitalRead(infraroodSensorLinks) == HIGH){
+    robotRight();
+  }
+  else if (digitalRead(infraroodSensorRechts) == HIGH){
+    robotLeft();
+  }
+  else{
+  }
+}
+void afgrondDetectie() {
+  static unsigned long startTime3 = millis();
+  static unsigned long startTime2 = millis();
   long duration;
   int distanceToGround;
 
@@ -412,15 +450,41 @@ bool afgrondDetectie() {
     distanceToGround = 30;
   }
   // Prints the distance on the Serial Monitor
-  Serial.print("Distance: ");
-  Serial.print(distanceToGround);
-  Serial.println(" cm");
+  //Serial.print("Distance: ");
+  //Serial.print(distanceToGround);
+  //Serial.println(" cm");
   if (distanceToGround > 5) {
-    return true;
+    afgrond = true;
   }
   if (distanceToGround <= 5) {
-    return false;
+    afgrond = false;
   }
+    
+    if (afgrond == false && afgrondBuffer == false) {
+      if (millis () - startTime3 > 2000) {
+
+        startTime3 = millis();
+        robotForward();
+      }
+    }
+
+    if (afgrond == true) {
+
+      robotReverse();
+      afgrondBuffer = true;
+    }
+
+      if(afgrondBuffer == true && afgrond == false){
+        robotReverse();
+        
+        
+        robotStop();
+        robotLeft();
+        if (millis () - startTime2 > 300) {
+      startTime2 = millis();
+        afgrondBuffer = false;
+        }
+        }
 
 }
 
@@ -433,6 +497,7 @@ void robotForward() {
 void robotLeft() {
   digitalWrite(motorLinksVooruit, LOW);
   digitalWrite(motorRechtsVooruit, HIGH);
+
 }
 
 void robotRight() {
@@ -451,5 +516,4 @@ void robotStop() {
   digitalWrite(motorRechtsAchteruit, LOW);
   digitalWrite(motorLinksVooruit, LOW);
   digitalWrite(motorRechtsVooruit, LOW);
-  
 }
