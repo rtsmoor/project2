@@ -53,6 +53,7 @@ const int echoPinA = 18;
 
 bool afgrond = false;
 bool afgrondBuffer = false;
+int bochtNaarLinks = 1;
 
 
 void setup() {
@@ -411,11 +412,24 @@ void loop() {
   }
 }
 
-void lijnDetectie(){
-      Serial.println(digitalRead(infraroodSensorLinks));
-      Serial.println(digitalRead(infraroodSensorRechts));
 
-  if (digitalRead(infraroodSensorLinks) == HIGH){
+void lijnDetectie(){
+  static unsigned long startTime4 = millis();
+  if (digitalRead(infraroodSensorLinks) == HIGH && digitalRead(infraroodSensorRechts) == HIGH){
+    startTime4 = millis();
+    if (bochtNaarLinks == 1){
+        robotSharpLeft();
+        }
+    else if (bochtNaarLinks == 0){
+        robotSharpRight();
+    }
+  }
+  else if (digitalRead(infraroodSensorLinks) == LOW && digitalRead(infraroodSensorRechts) == LOW && bochtNaarLinks == 1){
+      if(startTime4 > 4000){
+        bochtNaarLinks == 0;
+      }
+     }
+  else if (digitalRead(infraroodSensorLinks) == HIGH){
     robotRight();
   }
   else if (digitalRead(infraroodSensorRechts) == HIGH){
@@ -461,7 +475,7 @@ void afgrondDetectie() {
   }
     
     if (afgrond == false && afgrondBuffer == false) {
-      if (millis () - startTime3 > 2000) {
+      if (millis() - startTime3 > 2000) {
 
         startTime3 = millis();
         robotForward();
@@ -489,24 +503,44 @@ void afgrondDetectie() {
 }
 
 void robotForward() {
-  robotStop();
+  digitalWrite(motorLinksAchteruit, LOW);
+  digitalWrite(motorRechtsAchteruit, LOW);
   digitalWrite(motorLinksVooruit, HIGH);
   digitalWrite(motorRechtsVooruit, HIGH);
 }
 
 void robotLeft() {
+  digitalWrite(motorLinksAchteruit, LOW);
+  digitalWrite(motorRechtsAchteruit, LOW);
   digitalWrite(motorLinksVooruit, LOW);
   digitalWrite(motorRechtsVooruit, HIGH);
 
 }
+void robotSharpLeft() {
+  Serial.println("sharpLeft");
+  digitalWrite(motorRechtsAchteruit, LOW);
+  digitalWrite(motorLinksVooruit, LOW);
+  digitalWrite(motorRechtsVooruit, HIGH);
+  digitalWrite(motorLinksAchteruit, HIGH);
+
+}
 
 void robotRight() {
+  digitalWrite(motorLinksAchteruit, LOW);
+  digitalWrite(motorRechtsAchteruit, LOW);
+  digitalWrite(motorLinksVooruit, HIGH);
+  digitalWrite(motorRechtsVooruit, LOW);
+}
+void robotSharpRight() {
+  digitalWrite(motorLinksAchteruit, LOW);
+  digitalWrite(motorRechtsAchteruit, HIGH);
   digitalWrite(motorLinksVooruit, HIGH);
   digitalWrite(motorRechtsVooruit, LOW);
 }
 
 void robotReverse() {
-  robotStop();
+  digitalWrite(motorLinksVooruit, LOW);
+  digitalWrite(motorRechtsVooruit, LOW);
   digitalWrite(motorLinksAchteruit, HIGH);
   digitalWrite(motorRechtsAchteruit, HIGH);
 }
