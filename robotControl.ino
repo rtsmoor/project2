@@ -31,7 +31,7 @@ String modus = "Automatic-driving";
 #define ultrasoonSensorLinksTrig 13
 #define ultrasoonSensorLinksEcho 34
 #define ultrasoonSensorRechtsTrig 33
-#define ultrasoonSensorRechtsEcho 34
+#define ultrasoonSensorRechtsEcho 32
 
 #define infraroodSensorLinks 5
 #define infraroodSensorRechts 21
